@@ -1,3 +1,50 @@
+function saveBuilding(name, building_json) {
+  var BUILDINGS_DIR_NAME = "buildings"
+  var Api = Java.type("noppes.npcs.api.NpcAPI").Instance()
+  var File = Java.type("java.io.File")
+  var Files = Java.type("java.nio.file.Files")
+  var Paths = Java.type("java.nio.file.Paths")
+  var PrintWriter = Java.type('java.io.PrintWriter')
+  var FileWriter = Java.type('java.io.FileWriter')
+
+  var world_dir = Api.getWorldDir()
+  var buildings_dir = new File(world_dir, BUILDINGS_DIR_NAME)
+
+  // mkdir
+  if (Files.exists(buildings_dir) == false)
+    buildings_dir.mkdirs();
+
+  var building_file_name = name + ".json"
+  var building_file = new File(buildings_dir, building_file_name)
+  var writer = new PrintWriter(new FileWriter(building_file, false));
+  writer.println(JSON.stringify(building_json));
+  writer.close();
+
+}
+
+function getBuilding(name) {
+  var BUILDINGS_DIR_NAME = "buildings"
+  var Api = Java.type("noppes.npcs.api.NpcAPI").Instance()
+  var File = Java.type("java.io.File")
+  var Files = Java.type("java.nio.file.Files")
+  var Paths = Java.type("java.nio.file.Paths")
+
+  var world_dir = Api.getWorldDir()
+  var buildings_dir = new File(world_dir, BUILDINGS_DIR_NAME)
+
+  if (Files.exists(buildings_dir) == false)
+    return null
+
+  var building_file_name = name + ".json"
+  var building_file = new File(buildings_dir, building_file_name)
+
+  if ( building_file.exists() && building_file.isFile() ) {
+    var building_file_path = Paths.get( building_file.getAbsolutePath() )
+    var building_file_content = Files.readAllLines(building_file_path)[0]
+    return JSON.parse(building_file_content)
+  } else return null
+
+}
 
 function spawnParticleBy3DEdgeArea(world, particle, pos1, pos2) {
   var cor1 = {
