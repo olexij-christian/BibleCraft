@@ -22,6 +22,26 @@ function saveBuilding(name, building_json) {
 
 }
 
+function deleteBuilding(name) {
+  var BUILDINGS_DIR_NAME = "buildings"
+  var Api = Java.type("noppes.npcs.api.NpcAPI").Instance()
+  var File = Java.type("java.io.File")
+  var Files = Java.type("java.nio.file.Files")
+  var Paths = Java.type("java.nio.file.Paths")
+
+  var world_dir = Api.getWorldDir()
+  var buildings_dir = new File(world_dir, BUILDINGS_DIR_NAME)
+
+  if (Files.exists(buildings_dir) == false)
+    return null
+
+  var building_file_name = name + ".json"
+  var building_file = new File(buildings_dir, building_file_name)
+
+  return building_file.delete()
+
+}
+
 function getBuilding(name) {
   var BUILDINGS_DIR_NAME = "buildings"
   var Api = Java.type("noppes.npcs.api.NpcAPI").Instance()
