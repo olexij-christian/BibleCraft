@@ -1,3 +1,44 @@
+function areaToBuilding(world, pos1, pos2) {
+  var size_x = pos2.getX() - pos1.getX()
+  var size_y = pos2.getY() - pos1.getY()
+  var size_z = pos2.getZ() - pos1.getZ()
+
+  var res = {}
+
+  for (var x = 0; smallerOrBigger(x, size_x); x += minusOrPlusOne(size_x)) {
+    for (var y = 0; smallerOrBigger(y, size_y); y += minusOrPlusOne(size_y)) {
+      for (var z = 0; smallerOrBigger(z, size_z); z += minusOrPlusOne(size_z)) {
+        // cb - current block
+        var cb_x = pos1.getX() + x
+        var cb_y = pos1.getY() + y
+        var cb_z = pos1.getZ() + z
+        var current_block = world.getBlock(cb_x, cb_y, cb_z)
+        res[x + "," + y + "," + z] =  [
+          current_block.getName(),
+          current_block.getMetadata()
+        ]
+      }
+    }
+  }
+
+  return res
+
+  function smallerOrBigger(vr, num) {
+    if (num > 0)
+      return vr <= num
+    else
+      return vr >= num
+  }
+
+  function minusOrPlusOne(num) {
+    if (num > 0)
+      return 1
+    else
+      return -1
+  }
+
+}
+
 function saveBuilding(name, building_json) {
   var BUILDINGS_DIR_NAME = "buildings"
   var Api = Java.type("noppes.npcs.api.NpcAPI").Instance()
