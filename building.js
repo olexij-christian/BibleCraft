@@ -4,6 +4,11 @@ function areaToBuilding(world, pos1, pos2) {
   var size_z = pos2.getZ() - pos1.getZ()
 
   var res = {}
+  res.size = {
+    x: size_x,
+    y: size_y,
+    z: size_z
+  }
 
   for (var x = 0; smallerOrBigger(x, size_x); x += minusOrPlusOne(size_x)) {
     for (var y = 0; smallerOrBigger(y, size_y); y += minusOrPlusOne(size_y)) {
@@ -37,6 +42,25 @@ function areaToBuilding(world, pos1, pos2) {
       return -1
   }
 
+}
+
+function buildBuilding(world, pos, building_json) {
+  var pos_x = pos.getX()
+  var pos_y = pos.getY()
+  var pos_z = pos.getZ()
+  var size = building_json.size
+  for (var block_cor in building_json) {
+    if (block_cor == "size")
+      continue
+
+    var cor = block_cor.split(',')
+    var x = cor[0] + pos_x
+    var y = cor[1] + pos_y
+    var z = cor[2] + pos_z
+    var block_name = building_json[block_cor][0]
+    var block_meta = building_json[block_cor][1]
+    world.setBlock(x, y, z, block_name, block_meta)
+  }
 }
 
 function saveBuilding(name, building_json) {
