@@ -2,6 +2,8 @@
 
 function init(e) {
   e.item.setTexture(1, "variedcommodities:magic_wand")
+  e.item.setItemDamage(1)
+  e.item.setDurabilityShow(false)
 }
 
 var first_block_pos = null
@@ -11,6 +13,8 @@ function interact(e) {
 
   // interact with block
   if (e.type == 2) { 
+
+
     if (!first_block_pos) {
       first_block_pos = e.target.getPos()
       second_block_pos = first_block_pos
@@ -21,8 +25,7 @@ function interact(e) {
 
   // interact with air
   else if (e.type == 0) {
-    first_block_pos = null
-    second_block_pos = null
+    e.player.showCustomGui(scriptGuiList[guiId])
   }
 }
 
@@ -37,3 +40,45 @@ function tick(e) {
     spawnParticleBy3DEdgeArea(e.player.world, "flame", first_block_pos, second_block_pos)
   }
 }
+
+// Custom NPCs Scripter code
+var scriptGuiList = {}
+var scriptGuiEvents = {
+  button: {},
+  close:  {},
+  slot:   {},
+  scroll: {}
+}
+
+var guiId = 1;
+void function (guiId) {
+  scriptGuiList[guiId] = Java.type("noppes.npcs.api.NpcAPI").Instance().createCustomGui(guiId, 256, 256, false); 
+  scriptGuiList[guiId].setBackgroundTexture("customnpcs:textures/gui/smallbg.png");
+  scriptGuiList[guiId].setSize(176, 222);
+  scriptGuiList[guiId].addButton(0, "Убрать виделение", 10, 10, 150, 20);
+  scriptGuiEvents.button[0] = function(event) {
+    first_block_pos = null
+    second_block_pos = null
+  };
+  scriptGuiList[guiId].addTextField(2, 10, 40, 100, 20);
+  scriptGuiList[guiId].addButton(3, "Сохранить", 120, 40, 40, 20);
+  scriptGuiEvents.button[3] = function(event) {  };
+  scriptGuiList[guiId].addScroll(4, 10, 70, 150, 110, ["test", "other", "and", "Holy Jesus"])
+  scriptGuiList[guiId].addButton(5, "Взять для строительства", 10, 190, 150, 20);
+  scriptGuiEvents.button[5] = function(event) {  };
+}(guiId);
+
+
+function customGuiButton(event) {
+  scriptGuiEvents.button[event.buttonId](event)
+}
+
+function customGuiSlot(event) {
+  scriptGuiEvents.slot[event.slotId](event)
+}
+
+function customGuiClosed(event) {
+  scriptGuiEvents.close[event.gui.getID()](event)
+}
+
+
