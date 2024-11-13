@@ -1,3 +1,50 @@
+function Building(world) {
+  var PARTICLE = "flame"
+  var building = null
+  return {
+
+    initByJSON: function(json) {
+      building = json
+      return this
+    },
+
+    initByArea: function(pos1, pos2) {
+      building = areaToBuilding(world, pos1, pos2)
+      return this
+    },
+
+    initByName: function(name) {
+      building = getBuilding(name)
+      return this
+    },
+
+    build: function(pos) {
+      if (!building)
+        return false
+
+      buildBuilding(world, pos, building)
+      return true
+    },
+
+    save: function(name) {
+      saveBuilding(name, building)
+    },
+
+    spawnParticle: function(pos) {
+      if (!building)
+        return false
+
+      var x = building.size.x
+      var y = building.size.y
+      var z = building.size.z
+
+      spawnParticleBy3DEdgeArea(world, PARTICLE, pos, pos.add(x, y, z))
+      return true
+    }
+
+  }
+}
+
 function areaToBuilding(world, pos1, pos2) {
   var size_x = pos2.getX() - pos1.getX()
   var size_y = pos2.getY() - pos1.getY()
