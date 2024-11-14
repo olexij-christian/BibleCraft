@@ -91,8 +91,10 @@ void function (guiId) {
 
   };
   scriptGuiList[guiId].addScroll(4, 10, 70, 150, 110, listBuildings())
-  scriptGuiList[guiId].addButton(5, "Взять для строительства", 10, 190, 150, 20);
+  scriptGuiList[guiId].addButton(5, "Взять для строительства", 10, 190, 100, 20);
   scriptGuiEvents.button[5] = function(event) {  };
+  scriptGuiList[guiId].addButton(6, "Удалить", 120, 190, 40, 20);
+  scriptGuiEvents.button[6] = function(event) {  };
 }(guiId);
 
 
