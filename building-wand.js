@@ -70,7 +70,7 @@ void function (guiId) {
   scriptGuiList[guiId].addTextField(2, 10, 40, 100, 20);
   scriptGuiList[guiId].addButton(3, "Сохранить", 120, 40, 40, 20);
   scriptGuiEvents.button[3] = function(event) {  };
-  scriptGuiList[guiId].addScroll(4, 10, 70, 150, 110, ["test", "other", "and", "Holy Jesus"])
+  scriptGuiList[guiId].addScroll(4, 10, 70, 150, 110, listBuildings())
   scriptGuiList[guiId].addButton(5, "Взять для строительства", 10, 190, 150, 20);
   scriptGuiEvents.button[5] = function(event) {  };
 }(guiId);

@@ -110,12 +110,34 @@ function buildBuilding(world, pos, building_json) {
   }
 }
 
+function listBuildings() {
+  var BUILDINGS_DIR_NAME = "buildings"
+  var Api = Java.type("noppes.npcs.api.NpcAPI").Instance()
+  var File = Java.type("java.io.File")
+  var Files = Java.type("java.nio.file.Files")
+  var PrintWriter = Java.type('java.io.PrintWriter')
+  var FileWriter = Java.type('java.io.FileWriter')
+
+  var world_dir = Api.getWorldDir()
+  var buildings_dir = new File(world_dir, BUILDINGS_DIR_NAME)
+
+  if (buildings_dir.exists() && buildings_dir.isDirectory()) {
+    var res = []
+    var file_list = buildings_dir.listFiles()
+
+    for (var file in file_list)
+      res.push(file.getName())
+
+    return res
+  } else return []
+
+}
+
 function saveBuilding(name, building_json) {
   var BUILDINGS_DIR_NAME = "buildings"
   var Api = Java.type("noppes.npcs.api.NpcAPI").Instance()
   var File = Java.type("java.io.File")
   var Files = Java.type("java.nio.file.Files")
-  var Paths = Java.type("java.nio.file.Paths")
   var PrintWriter = Java.type('java.io.PrintWriter')
   var FileWriter = Java.type('java.io.FileWriter')
 
@@ -123,7 +145,7 @@ function saveBuilding(name, building_json) {
   var buildings_dir = new File(world_dir, BUILDINGS_DIR_NAME)
 
   // mkdir
-  if (Files.exists(buildings_dir) == false)
+  if (buildings_dir.exists() == false)
     buildings_dir.mkdirs();
 
   var building_file_name = name + ".json"
