@@ -125,8 +125,10 @@ function listBuildings() {
     var res = []
     var file_list = buildings_dir.listFiles()
 
-    for (var file in file_list)
+    for (var i in file_list) {
+      var file = file_list[i]
       res.push(file.getName())
+    }
 
     return res
   } else return []

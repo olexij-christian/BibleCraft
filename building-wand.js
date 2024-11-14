@@ -69,7 +69,27 @@ void function (guiId) {
   };
   scriptGuiList[guiId].addTextField(2, 10, 40, 100, 20);
   scriptGuiList[guiId].addButton(3, "Сохранить", 120, 40, 40, 20);
-  scriptGuiEvents.button[3] = function(event) {  };
+  scriptGuiEvents.button[3] = function(event) {
+
+    // check territory selecting
+    if (!first_block_pos || !second_block_pos) {
+      event.player.closeGui()
+      event.player.message("Територия для копирование не виделена")
+      return
+    }
+
+    var file_name = event.gui.getComponent(2).getText()
+
+    // save building
+    Building(event.player.getWorld())
+      .initByArea(first_block_pos, second_block_pos)
+      .save(file_name)
+
+    // message success
+    event.player.closeGui()
+    event.player.message("Постойка успешно сохранена под названием \"" + file_name + "\"")
+
+  };
   scriptGuiList[guiId].addScroll(4, 10, 70, 150, 110, listBuildings())
   scriptGuiList[guiId].addButton(5, "Взять для строительства", 10, 190, 150, 20);
   scriptGuiEvents.button[5] = function(event) {  };
