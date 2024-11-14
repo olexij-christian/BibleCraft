@@ -127,7 +127,10 @@ function listBuildings() {
 
     for (var i in file_list) {
       var file = file_list[i]
-      res.push(file.getName())
+
+      // NOTE: splitting to remove type of file
+      // Example: "building.json" => "building"
+      res.push(file.getName().split('.')[0])
     }
 
     return res
