@@ -1,13 +1,20 @@
 // need building.js
 
-function init(e) {
-  e.item.setTexture(1, "variedcommodities:magic_wand")
-  e.item.setItemDamage(1)
-  e.item.setDurabilityShow(false)
-}
+var selected_building_name = null
 
 var first_block_pos = null
 var second_block_pos = null
+
+function init(e) {
+  e.item.setDurabilityShow(false)
+  if (selected_building_name) {
+    e.item.setTexture(1, "variedcommodities:sledge_hammer")
+    e.item.setItemDamage(1)
+  } else {
+    e.item.setTexture(2, "variedcommodities:magic_wand")
+    e.item.setItemDamage(2)
+  }
+}
 
 function interact(e) {
 
