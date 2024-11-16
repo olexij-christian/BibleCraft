@@ -90,11 +90,26 @@ void function (guiId) {
     event.player.message("Постойка успешно сохранена под названием \"" + file_name + "\"")
 
   };
-  scriptGuiList[guiId].addScroll(4, 10, 70, 150, 110, listBuildings())
+
+  function addOrUpdateScroll() {
+    scriptGuiList[guiId].addScroll(1, 10, 70, 150, 110, listBuildings())
+  }
+
+  // selected scroll element name
+  var scr_elem_name
+  addOrUpdateScroll()
+  scriptGuiEvents.scroll[1] = function(event) {
+    scr_elem_name = event.selection[0]
+  }
+
   scriptGuiList[guiId].addButton(5, "Взять для строительства", 10, 190, 100, 20);
   scriptGuiEvents.button[5] = function(event) {  };
   scriptGuiList[guiId].addButton(6, "Удалить", 120, 190, 40, 20);
-  scriptGuiEvents.button[6] = function(event) {  };
+  scriptGuiEvents.button[6] = function(event) {
+    deleteBuilding(scr_elem_name)
+    addOrUpdateScroll()
+    event.gui.update(event.player)
+  };
 }(guiId);
 
 
@@ -108,6 +123,10 @@ function customGuiSlot(event) {
 
 function customGuiClosed(event) {
   scriptGuiEvents.close[event.gui.getID()](event)
+}
+
+function customGuiScroll(event) {
+  scriptGuiEvents.scroll[event.gui.getID()](event)
 }
 
 
