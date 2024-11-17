@@ -106,6 +106,7 @@ function buildBuilding(world, pos, building_json) {
     var z = cor[2] + pos_z
     var block_name = building_json[block_cor][0]
     var block_meta = building_json[block_cor][1]
+    world.broadcast(x, y, z)
     world.setBlock(x, y, z, block_name, block_meta)
   }
 }

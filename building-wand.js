@@ -1,13 +1,20 @@
 // need building.js
 
-var selected_building_name = null
+var selected_building = null
+var SELF_ITEM = null
+
+function clearBuildingSelection() {
+  first_block_pos = null
+  second_block_pos = null
+}
 
 var first_block_pos = null
 var second_block_pos = null
 
 function init(e) {
+  SELF_ITEM = e.item
   e.item.setDurabilityShow(false)
-  if (selected_building_name) {
+  if (selected_building) {
     e.item.setTexture(1, "variedcommodities:sledge_hammer")
     e.item.setItemDamage(1)
   } else {
@@ -21,18 +28,46 @@ function interact(e) {
   // interact with block
   if (e.type == 2) { 
 
+    if (selected_building) {
+      // if interact with block double
+      if (first_block_pos && first_block_pos.distanceTo(e.target.getPos()) == 0) {
+        
+        // build
+        Building(e.player.getWorld())
+          .initByJSON(selected_building)
+          .build(first_block_pos)
 
-    if (!first_block_pos) {
-      first_block_pos = e.target.getPos()
-      second_block_pos = first_block_pos
+        clearBuildingSelection()
+        
+      } else {
+        
+        // prepare selection for building
+        var x = selected_building.size.x
+        var y = selected_building.size.y
+        var z = selected_building.size.z
+        first_block_pos = e.target.getPos()
+        second_block_pos = first_block_pos.add(x, y, z)
+      }
+    } else {
+      if (!first_block_pos) {
+        first_block_pos = e.target.getPos()
+        second_block_pos = first_block_pos
+      }
+      else
+        second_block_pos = e.target.getPos()
     }
-    else
-      second_block_pos = e.target.getPos()
+
   }
 
   // interact with air
   else if (e.type == 0) {
-    e.player.showCustomGui(scriptGuiList[guiId])
+    if (selected_building) {
+      // clear selecting of building
+      selected_building = null
+      init(e)
+    } else {
+      e.player.showCustomGui(scriptGuiList[guiId])
+    }
   }
 }
 
@@ -64,8 +99,7 @@ void function (guiId) {
   scriptGuiList[guiId].setSize(176, 222);
   scriptGuiList[guiId].addButton(0, "Убрать виделение", 10, 10, 150, 20);
   scriptGuiEvents.button[0] = function(event) {
-    first_block_pos = null
-    second_block_pos = null
+    clearBuildingSelection()
   };
   scriptGuiList[guiId].addTextField(2, 10, 40, 100, 20);
   scriptGuiList[guiId].addButton(3, "Сохранить", 120, 40, 40, 20);
@@ -103,7 +137,13 @@ void function (guiId) {
   }
 
   scriptGuiList[guiId].addButton(5, "Взять для строительства", 10, 190, 100, 20);
-  scriptGuiEvents.button[5] = function(event) {  };
+  scriptGuiEvents.button[5] = function(event) {
+    clearBuildingSelection()
+    selected_building = getBuilding(scr_elem_name)
+    // update sprite of item
+    init({ item: SELF_ITEM })
+    event.player.closeGui()
+  };
   scriptGuiList[guiId].addButton(6, "Удалить", 120, 190, 40, 20);
   scriptGuiEvents.button[6] = function(event) {
     deleteBuilding(scr_elem_name)
