@@ -101,12 +101,11 @@ function buildBuilding(world, pos, building_json) {
       continue
 
     var cor = block_cor.split(',')
-    var x = cor[0] + pos_x
-    var y = cor[1] + pos_y
-    var z = cor[2] + pos_z
+    var x = parseInt(cor[0]) + pos_x
+    var y = parseInt(cor[1]) + pos_y
+    var z = parseInt(cor[2]) + pos_z
     var block_name = building_json[block_cor][0]
     var block_meta = building_json[block_cor][1]
-    world.broadcast(x, y, z)
     world.setBlock(x, y, z, block_name, block_meta)
   }
 }
