@@ -79,7 +79,8 @@ function tick(e) {
 
   var player_item = e.player.getMainhandItem()
   if (e.item.compare(player_item, false)) {
-    spawnParticleBy3DEdgeArea(e.player.world, "flame", first_block_pos, second_block_pos)
+    var second_block_pos_for_particles = second_block_pos.add(1, 1, 1)
+    spawnParticleBy3DEdgeArea(e.player.world, "flame", first_block_pos, second_block_pos_for_particles)
   }
 }
 
