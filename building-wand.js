@@ -11,9 +11,14 @@ function clearBuildingSelection() {
 var first_block_pos = null
 var second_block_pos = null
 
+function updateItemSprite() {
+  init({ item: SELF_ITEM })
+}
+
 function init(e) {
   SELF_ITEM = e.item
   e.item.setDurabilityShow(false)
+  e.item.setCustomName("Строитель")
   if (selected_building) {
     e.item.setTexture(1, "variedcommodities:sledge_hammer")
     e.item.setItemDamage(1)
@@ -64,8 +69,9 @@ function interact(e) {
     if (selected_building) {
       // clear selecting of building
       selected_building = null
-      init(e)
+      updateItemSprite()
     } else {
+      addOrUpdateScroll()
       e.player.showCustomGui(scriptGuiList[guiId])
     }
   }
@@ -94,6 +100,11 @@ var scriptGuiEvents = {
 }
 
 var guiId = 1;
+
+function addOrUpdateScroll() {
+  scriptGuiList[guiId].addScroll(1, 10, 70, 150, 110, listBuildings())
+}
+
 void function (guiId) {
   scriptGuiList[guiId] = Java.type("noppes.npcs.api.NpcAPI").Instance().createCustomGui(guiId, 256, 256, false); 
   scriptGuiList[guiId].setBackgroundTexture("customnpcs:textures/gui/smallbg.png");
@@ -101,6 +112,7 @@ void function (guiId) {
   scriptGuiList[guiId].addButton(0, "Убрать виделение", 10, 10, 150, 20);
   scriptGuiEvents.button[0] = function(event) {
     clearBuildingSelection()
+    event.player.closeGui()
   };
   scriptGuiList[guiId].addTextField(2, 10, 40, 100, 20);
   scriptGuiList[guiId].addButton(3, "Сохранить", 120, 40, 40, 20);
@@ -123,12 +135,11 @@ void function (guiId) {
     // message success
     event.player.closeGui()
     event.player.message("Постойка успешно сохранена под названием \"" + file_name + "\"")
+    event.gui.getComponent(2).setText("")
+    clearBuildingSelection()
 
   };
 
-  function addOrUpdateScroll() {
-    scriptGuiList[guiId].addScroll(1, 10, 70, 150, 110, listBuildings())
-  }
 
   // selected scroll element name
   var scr_elem_name
@@ -141,8 +152,7 @@ void function (guiId) {
   scriptGuiEvents.button[5] = function(event) {
     clearBuildingSelection()
     selected_building = getBuilding(scr_elem_name)
-    // update sprite of item
-    init({ item: SELF_ITEM })
+    updateItemSprite()
     event.player.closeGui()
   };
   scriptGuiList[guiId].addButton(6, "Удалить", 120, 190, 40, 20);
