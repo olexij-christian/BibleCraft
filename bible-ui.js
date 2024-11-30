@@ -1,5 +1,7 @@
 // need bible.lib.js
 
+var OverWorld = Java.type("noppes.npcs.api.NpcAPI").Instance().getIWorld(0);
+
 function makeArrayWithNumbers(size, firstNumber) {
   var array = []
   firstNumber = firstNumber || 0
@@ -8,53 +10,73 @@ function makeArrayWithNumbers(size, firstNumber) {
   return array
 }
 
-function showButtonGrid(width, height, title_list) {
-  var X_MARGIN = -32
-  var Y_MARGIN = 18
+// list for removing showed buttons
+var button_id_grid_list = []
+var ButtonGrid = {
+  button_id_list: [],
+  show: function(width, height, title_list, props) {
 
-  var MAX_Y = 15
+    // props is custom property
+    props = props || {}
 
-  var BUTTON_WIDTH = 28
-  var BUTTON_HEIGHT = 14
+    var MAX_Y         = props.max_y || 14
 
-  function makeArrayWithNumbersForUI(size, firstNumber) {
-    return makeArrayWithNumbers(size, firstNumber).map(function (num, index) { 
-      //Java.type("noppes.npcs.api.NpcAPI").indexInstance().getIWorld(0).broadcast(index || (1).toString())
-      // if row on bottom of display
-      if (num >= MAX_Y)
-        // then place row up
-        return index - MAX_Y
-      else
-        return num + 1
-    })
-      // sort from smaller to bigger for right title viewing
-      .sort(function (a, b) a-b)
-  }
+    var X_MARGIN      = ( props.x_margin || 32 ) * -1
+    var Y_MARGIN      = props.y_margin || 18
 
-  var title_list_iterator = {
-    index: 0,
-    next: function() {
-      var res = title_list[this.index]
-      this.index += 1
-      return res
+    var BUTTON_WIDTH  = props.button_width || 28
+    var BUTTON_HEIGHT = props.button_height || 14
+
+    function makeArrayWithNumbersForUI(size, firstNumber) {
+      return makeArrayWithNumbers(size, firstNumber).map(function (num, index) { 
+        // if row on bottom of display
+        if (num >= MAX_Y) {
+          // then place row up
+          return MAX_Y - index
+        }
+        else
+          return num + 1
+      })
+        // sort from smaller to bigger for right title viewing
+        .sort(function (a, b) a-b)
     }
-  }
 
-  var x_pos_list = makeArrayWithNumbersForUI(width).map(function(num) num * X_MARGIN)
-  var y_pos_list = makeArrayWithNumbersForUI(height, -1).map(function(num) num * Y_MARGIN)
-
-  x_pos_list.reverse()
-
-  for (var i in x_pos_list) {
-    for (var j in y_pos_list) {
-      var x_pos = x_pos_list[i]
-      var y_pos = y_pos_list[j]
-      var first_letter = j >= 10 ? "2" : 1
-      j = j >= 10 ? j - 10 : j
-      var component_id = parseInt(first_letter+i.toString()+j.toString())
-      
-      UI.addButton(component_id, title_list_iterator.next(), x_pos, y_pos, BUTTON_WIDTH, BUTTON_HEIGHT)
+    var title_list_iterator = {
+      index: 0,
+      next: function() {
+        var res = title_list[this.index]
+        this.index += 1
+        return res
+      }
     }
+
+    var x_pos_list = makeArrayWithNumbersForUI(width).map(function(num) num * X_MARGIN)
+    var y_pos_list = makeArrayWithNumbersForUI(height, -1).map(function(num) num * Y_MARGIN)
+
+    x_pos_list.reverse()
+
+    for (var i in x_pos_list) {
+      for (var j in y_pos_list) {
+        var x_pos = x_pos_list[i]
+        var y_pos = y_pos_list[j]
+        var first_letter = j >= 10 ? "2" : 1
+        j = j >= 10 ? j - 10 : j
+        var component_id = parseInt(first_letter+i.toString()+j.toString())
+        var current_title = title_list_iterator.next()
+
+        // skip last buttons without titles
+        if (current_title == undefined)
+          return
+        
+        this.button_id_list.push(component_id)
+        UI.addButton(component_id, current_title, x_pos, y_pos, BUTTON_WIDTH, BUTTON_HEIGHT)
+      }
+    }
+  },
+  
+  hide: function() {
+    this.button_id_list.map( function(id) UI.removeComponent(id) )
+    this.button_id_list = []
   }
 }
 
@@ -70,28 +92,20 @@ var TranslationList = {
 
 var BookList = {
   show: function() {
-    showButtonGrid(6, 11, makeArrayWithNumbers(66, 1))
+    ButtonGrid.show(6, 11, makeArrayWithNumbers(66, 1))
   },
-  hide: function() {}
+  hide: function() {
+    ButtonGrid.hide()
+  }
 }
 
 var ChapterList = {
   show: function() {
-    var x_pos_list = [1, 2, 3, 4, 5, 6, 7, 8].map(function(num) num*-28)
-    var y_pos_list = [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map(function(num) num*18)
-    for (var i in x_pos_list) {
-      for (var j in y_pos_list) {
-        var x_pos = x_pos_list[i]
-        var y_pos = y_pos_list[j]
-        var first_letter = j >= 10 ? "2" : 1
-        j = j >= 10 ? j - 10 : j
-        var component_id = parseInt(first_letter+i.toString()+j.toString())
-        
-        UI.addButton(component_id, x_pos.toString(), x_pos, y_pos, 24, 14)
-      }
-    }
+    ButtonGrid.show(8, 19, makeArrayWithNumbers(150, 1), { button_width: 24, x_margin: 28 })
   },
-  hide: function() {}
+  hide: function() {
+    ButtonGrid.hide()
+  }
 }
 
 var scriptGuiList = {}
@@ -109,7 +123,8 @@ void function (guiId) {
   UI = scriptGuiList[guiId]
   scriptGuiList[guiId].setBackgroundTexture("minecraft:textures/gui/book.png");
   scriptGuiList[guiId].setSize(180, 190);
-  BookList.show()
+  // BookList.show()
+  ChapterList.show()
 }(guiId);
 
 function interact(event) {
