@@ -10,11 +10,11 @@ function makeArrayWithNumbers(size, firstNumber) {
   return array
 }
 
-// list for removing showed buttons
-var button_id_grid_list = []
 var ButtonGrid = {
+  // list for removing showed buttons
   button_id_list: [],
-  show: function(width, height, title_list, props) {
+
+  show: function(width, height, button_passport_list, props) {
 
     // props is custom property
     props = props || {}
@@ -25,7 +25,7 @@ var ButtonGrid = {
     var Y_MARGIN      = props.y_margin || 18
 
     var BUTTON_WIDTH  = props.button_width || 28
-    var BUTTON_HEIGHT = props.button_height || 14
+    var BUTTON_HEIGHT = props.button_height || 16
 
     function makeArrayWithNumbersForUI(size, firstNumber) {
       return makeArrayWithNumbers(size, firstNumber).map(function (num, index) { 
@@ -41,10 +41,10 @@ var ButtonGrid = {
         .sort(function (a, b) a-b)
     }
 
-    var title_list_iterator = {
+    var button_passport_iterator = {
       index: 0,
       next: function() {
-        var res = title_list[this.index]
+        var res = button_passport_list[this.index]
         this.index += 1
         return res
       }
@@ -59,23 +59,32 @@ var ButtonGrid = {
       for (var j in y_pos_list) {
         var x_pos = x_pos_list[i]
         var y_pos = y_pos_list[j]
+
         var first_letter = j >= 10 ? "2" : 1
         j = j >= 10 ? j - 10 : j
         var component_id = parseInt(first_letter+i.toString()+j.toString())
-        var current_title = title_list_iterator.next()
+
+        var current_button_passport = button_passport_iterator.next()
 
         // skip last buttons without titles
-        if (current_title == undefined)
+        if (current_button_passport == undefined)
           return
+
+        var button_title = current_button_passport.title
+        var button_on_click = current_button_passport.onClick
         
         this.button_id_list.push(component_id)
-        UI.addButton(component_id, current_title, x_pos, y_pos, BUTTON_WIDTH, BUTTON_HEIGHT)
+        ScriptGuiEvents.button.register(component_id, button_on_click)
+        UI.addButton(component_id, button_title, x_pos, y_pos, BUTTON_WIDTH, BUTTON_HEIGHT)
       }
     }
   },
   
   hide: function() {
-    this.button_id_list.map( function(id) UI.removeComponent(id) )
+    this.button_id_list.map( function(id) {
+      UI.removeComponent(id)
+      ScriptGuiEvents.button.unregister(id)
+    } )
     this.button_id_list = []
   }
 }
@@ -92,7 +101,17 @@ var TranslationList = {
 
 var BookList = {
   show: function() {
-    ButtonGrid.show(6, 11, makeArrayWithNumbers(66, 1))
+    ButtonGrid.hide()
+    var button_passports = makeArrayWithNumbers(66, 1).map(function(num) {
+      return {
+        title: num,
+        onClick: function(event) {
+          ChapterList.show()
+          UI.update(event.player)
+        }
+      }
+    })
+    ButtonGrid.show(6, 11, button_passports)
   },
   hide: function() {
     ButtonGrid.hide()
@@ -101,7 +120,17 @@ var BookList = {
 
 var ChapterList = {
   show: function() {
-    ButtonGrid.show(8, 19, makeArrayWithNumbers(150, 1), { button_width: 24, x_margin: 28 })
+    ButtonGrid.hide()
+    var button_passports = makeArrayWithNumbers(150, 1).map(function(num) {
+      return {
+        title: num,
+        onClick: function(event) {
+          ButtonGrid.hide()
+          UI.update(event.player)
+        }
+      }
+    })
+    ButtonGrid.show(8, 19, button_passports, { button_width: 24, x_margin: 28 })
   },
   hide: function() {
     ButtonGrid.hide()
@@ -109,11 +138,19 @@ var ChapterList = {
 }
 
 var scriptGuiList = {}
-var scriptGuiEvents = {
-  button: {},
+var ScriptGuiEvents = {
+  button: {
+    register: function(id, onClick) {
+      this[id] = onClick
+    },
+    unregister: function(id) {
+      delete this[id]
+    }
+  },
   close:  {},
   slot:   {},
-  scroll: {}
+  scroll: {},
+
 }
 
 var guiId = 8
@@ -123,25 +160,25 @@ void function (guiId) {
   UI = scriptGuiList[guiId]
   scriptGuiList[guiId].setBackgroundTexture("minecraft:textures/gui/book.png");
   scriptGuiList[guiId].setSize(180, 190);
-  // BookList.show()
-  ChapterList.show()
+  ScriptGuiEvents.close[guiId] = function() {}
 }(guiId);
 
 function interact(event) {
+  BookList.show()
   event.player.showCustomGui(scriptGuiList[8]);
 }
 
 
 function customGuiButton(event) {
-  scriptGuiEvents.button[event.buttonId](event)
+  ScriptGuiEvents.button[event.buttonId](event)
 }
 
 function customGuiSlot(event) {
-  scriptGuiEvents.slot[event.slotId](event)
+  ScriptGuiEvents.slot[event.slotId](event)
 }
 
 function customGuiClosed(event) {
-  scriptGuiEvents.close[event.gui.getID()](event)
+  ScriptGuiEvents.close[event.gui.getID()](event)
 }
 
 
